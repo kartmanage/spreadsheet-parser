@@ -34,7 +34,8 @@ abstract class AbstractXMLDictionnary extends AbstractXMLResource
             $this->readNext();
         }
         if ((!isset($this->values[$index]))) {
-            throw new \InvalidArgumentException(sprintf('No value with index %s', $index));
+            $this->values[$index] = '';
+            //throw new \InvalidArgumentException(sprintf('No value with index %s', $index));
         }
 
         return $this->values[$index];
