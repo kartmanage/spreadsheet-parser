@@ -130,9 +130,16 @@ class Spreadsheet implements SpreadsheetInterface
     {
         $paths = array_values($this->getWorksheetPaths());
 
+        // Spaghetti code to fix path before calling archive->extract
+        $path = $this->archive->extract(str_replace('xl//xl/', 'xl/', $paths[$worksheetIndex]));
+
+        // Get rid of x: and d: namespaces in XML
+        $xml = str_replace( ['<x:', '</x:', '<d:', '</d:'], ['<', '</', '<', '</'], file_get_contents( $path ) );
+        file_put_contents( $path , $xml );
+
         return $this->rowIteratorFactory->create(
             $this->getValueTransformer(),
-            $this->archive->extract($paths[$worksheetIndex]),
+            $path,
             $options,
             $this->archive
         );
@@ -194,6 +201,11 @@ class Spreadsheet implements SpreadsheetInterface
     {
         if (!$this->worksheetPaths) {
             $path = $this->archive->extract(static::WORKBOOK_PATH);
+
+            // Get rid of x: and d: namespaces in XML
+            $xml = str_replace( ['<x:', '</x:', '<d:', '</d:'], ['<', '</', '<', '</'], file_get_contents( $path ) );
+            file_put_contents( $path , $xml );
+
             $this->worksheetPaths = $this->worksheetListReader->getWorksheetPaths($this->getRelationships(), $path);
         }
 
